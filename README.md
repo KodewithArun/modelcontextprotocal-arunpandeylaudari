@@ -1,53 +1,55 @@
-# Expences Tracker MCP Server
+# Expences Tracker — MCP + FastAPI
 
-A personal finance tracker powered by **FastMCP** + **SQLite**. Manage expenses and income through any AI assistant that supports the **Model Context Protocol (MCP)**.
+A personal finance tracker that works two ways:
+
+- **MCP Server** — AI assistants (opencode, Claude) manage expenses via natural language
+- **FastAPI** — REST API for programmatic access
 
 ## Architecture
 
 ```
-┌─────────────────────┐     MCP      ┌──────────────────────────┐
-│  AI Assistant        │ ◄─────────► │  expences-tracker-mcp    │
-│  (opencode, Claude)  │             │  (FastMCP server)        │
-└─────────────────────┘             │  ┌──────────────────────┐│
-                                      │  │  SQLite (expenses.db)││
-                                      │  └──────────────────────┘│
-                                      └──────────────────────────┘
+┌──────────────────────┐
+│    AI Assistant      │
+│  (opencode / Claude) │
+└────────┬─────────────┘
+         │ MCP (stdio)
+         ▼
+┌─────────────────────────────────────┐
+│  main.py — FastMCP.from_fastapi()  │
+│  │                                  │
+│  │ httpx calls to localhost:8765    │
+│  ▼                                  │
+│  app.py — FastAPI (port 8765)       │
+│  │                                  │
+│  ▼                                  │
+│  db.py — SQLite (expenses.db)       │
+└─────────────────────────────────────┘
 ```
 
-## Features
+## Structure
 
-| Tool | Description |
-|------|-------------|
-| `add_category` | Create expense/income categories |
-| `list_categories` | Browse all categories |
-| `update_category` | Rename or re-type a category |
-| `delete_category` | Remove a category (blocked if in use) |
-| `add_transaction` | Log an expense or income entry |
-| `list_transactions` | Filter by date, category, or type |
-| `update_transaction` | Edit any transaction field |
-| `delete_transaction` | Remove a transaction by ID |
-| `get_summary` | Income/expense summary for a period |
-| `get_monthly_report` | Detailed monthly breakdown |
+| File | Purpose |
+|------|---------|
+| `db.py` | Shared DB layer (SQLite connection + init) |
+| `app.py` | FastAPI app with JSON API endpoints |
+| `main.py` | FastMCP wrapper (from_fastapi) + auto-starts FastAPI |
 
-## What I Learned
+## API Endpoints
 
-- **MCP (Model Context Protocol)** — a standardized way for AI assistants to interact with tools and data sources.
-- **FastMCP** — a Python framework for building MCP servers with minimal boilerplate.
-- **SQLite** — embedded database for local-first data persistence.
-- **Tool-based interaction** — each operation (CRUD on categories & transactions, reporting) is exposed as a typed tool the AI can call.
-- **Local MCP deployment** — the server runs locally via `uv`/`python` and is registered in `opencode.json` for use with opencode.
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/categories` | List categories |
+| POST | `/api/categories` | Create category |
+| DELETE | `/api/categories/{id}` | Delete category |
+| GET | `/api/transactions` | List transactions |
+| POST | `/api/transactions` | Add transaction |
+| DELETE | `/api/transactions/{id}` | Delete transaction |
+| GET | `/api/summary` | Monthly summary |
 
-## Usage
-
-The server is registered in `opencode.json`. Just ask your AI:
-
-> "Add lunch expense of ₹450 under Food & Drink"  
-> "Show me this month's summary"  
-> "Delete transaction #3"
-
-## Setup
+## Quick Start
 
 ```bash
 uv sync
-python main.py
+python main.py          # runs MCP server (stdio)
+uvicorn app:app --port 8000   # or run API standalone
 ```
