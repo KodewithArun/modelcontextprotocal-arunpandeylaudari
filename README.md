@@ -31,6 +31,47 @@ uv run main.py
 
 The server starts at `http://0.0.0.0:8080/mcp`.
 
+## Claude Code (Remote — hosted on Render)
+
+Add as a project-scoped server (creates `.mcp.json` in the repo root):
+
+```bash
+claude mcp add --scope project --transport sse expense-tracker https://modelcontextprotocal-arunpandeylaudari.onrender.com/mcp
+```
+
+Or add manually to `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "expense-tracker": {
+      "type": "sse",
+      "url": "https://modelcontextprotocal-arunpandeylaudari.onrender.com/mcp"
+    }
+  }
+}
+```
+
+## Claude Code (Local dev)
+
+```bash
+claude mcp add --scope project expense-tracker -- uv run main.py
+```
+
+Or add to `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "expense-tracker": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "main.py"]
+    }
+  }
+}
+```
+
 ## OpenCode Config
 
 ```json
@@ -42,4 +83,5 @@ The server starts at `http://0.0.0.0:8080/mcp`.
     }
   }
 }
+```
 ```
