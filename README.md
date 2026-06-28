@@ -1,29 +1,45 @@
-# Simple Remote Server
+# Expense Tracker MCP Server
 
-A simple calculator MCP server built with [FastMCP](https://github.com/jlowin/fastmcp). Exposes basic arithmetic operations as tools via the Model Context Protocol.
+An MCP (Model Context Protocol) server for tracking expenses, built with FastMCP and SQLite.
 
 ## Tools
 
 | Tool | Description |
 |------|-------------|
-| `add(a, b)` | Returns a + b |
-| `subtract(a, b)` | Returns a - b |
-| `multiply(a, b)` | Returns a * b |
-| `divide(a, b)` | Returns a / b |
-| `hello(name)` | Returns a greeting |
+| `add_expense` | Add a new expense (amount, category, description, date) |
+| `list_expenses` | List expenses with optional filters (category, date range) |
+| `get_expense` | Get a single expense by ID |
+| `update_expense` | Update amount, category, description, or date |
+| `delete_expense` | Delete an expense by ID |
+| `get_summary` | Total, count, average, breakdown by category |
+| `get_expenses_by_category` | Group all expenses by category |
 
-## Resource
+## Resources
 
-- `info://simpleremoteserver` — Server metadata
+- `expenses://summary` — Overall expense summary
+- `expenses://category/{category}` — Expenses for a specific category
 
-## Usage
+## Categories
+
+Food, Transport, Shopping, Entertainment, Bills, Healthcare, Education, Other
+
+## Local Development
 
 ```bash
-# Install dependencies
-uv sync
-
-# Run the server
-python main.py
+uv run main.py
 ```
 
-The server starts on `http://0.0.0.0:8080/mcp`.
+The server starts at `http://0.0.0.0:8080/mcp`.
+
+## OpenCode Config
+
+```json
+{
+  "mcp": {
+    "expense-tracker": {
+      "type": "local",
+      "command": ["uv", "run", "main.py"]
+    }
+  }
+}
+```
